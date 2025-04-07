@@ -39,7 +39,7 @@ import (
 func main() {
     // Create an MCP client using stdio
     mcpClient, err := client.NewStdioMCPClient(
-        "./a-mcp-sever",  // Path to a MCP server
+        "./a-mcp-sever",  // Path to an MCP server
         nil,              // Additional environment variables if needed
     )
     if err != nil {
