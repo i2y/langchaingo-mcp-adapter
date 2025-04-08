@@ -39,8 +39,8 @@ import (
 func main() {
     // Create an MCP client using stdio
     mcpClient, err := client.NewStdioMCPClient(
-        "./a-mcp-sever",  // Path to an MCP server
-        nil,              // Additional environment variables if needed
+        "./an-mcp-server",  // Path to an MCP server
+        nil,                // Additional environment variables if needed
     )
     if err != nil {
         log.Fatalf("Failed to create MCP client: %v", err)
