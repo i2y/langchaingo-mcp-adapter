@@ -47,13 +47,13 @@ func (t *mcpTool) Call(ctx context.Context, input string) (string, error) {
 	var args map[string]interface{}
 	err := json.Unmarshal([]byte(input), &args)
 	if err != nil {
-		return "", fmt.Errorf("unmarshal input: %w", err)
+		return "call the tool error: input must be valid json, retry tool calling with correct json", nil
 	}
 	req.Params.Arguments = args
 
 	res, err := t.client.CallTool(ctx, req)
 	if err != nil {
-		return "", fmt.Errorf("call the tool: %w", err)
+		return fmt.Sprintf("call the tool error: %s", err), nil
 	}
 
 	return res.Content[0].(mcp.TextContent).Text, nil
