@@ -19,6 +19,7 @@ type mcpTool struct {
 	description string
 	inputSchema []byte
 	client      client.MCPClient
+	timeout     time.Duration
 }
 
 // Name returns the name of the tool.
@@ -33,7 +34,7 @@ func (t *mcpTool) Description() string {
 
 // Call invokes the MCP tool with the given input and returns the result.
 func (t *mcpTool) Call(ctx context.Context, input string) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, t.timeout)
 	defer cancel()
 
 	req := mcp.CallToolRequest{
@@ -60,17 +61,29 @@ func (t *mcpTool) Call(ctx context.Context, input string) (string, error) {
 
 // MCPAdapter adapts an MCP client to the LangChain Go tools interface.
 type MCPAdapter struct {
-	client client.MCPClient
+	client  client.MCPClient
+	timeout time.Duration
+}
+
+// Option defines a functional option type for configuring MCPAdapter.
+type Option func(*MCPAdapter)
+
+// WithToolTimeout sets the timeout for tool calls.
+func WithToolTimeout(timeout time.Duration) Option {
+	return func(a *MCPAdapter) {
+		a.timeout = timeout
+	}
 }
 
 // New creates a new MCPAdapter instance with the given MCP client.
 // It initializes the connection with the MCP server.
-func New(client client.MCPClient) (*MCPAdapter, error) {
+// Optional parameters can be passed using functional options.
+func New(client client.MCPClient, opts ...Option) (*MCPAdapter, error) {
 	initRequest := mcp.InitializeRequest{}
 	initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
 	initRequest.Params.ClientInfo = mcp.Implementation{
 		Name:    "langchaingo-mcp-adapter",
-		Version: "1.0.0",
+		Version: "1.0.1",
 	}
 
 	initResult, err := client.Initialize(context.Background(), initRequest)
@@ -86,15 +99,22 @@ func New(client client.MCPClient) (*MCPAdapter, error) {
 		initResult.ServerInfo.Version,
 	)
 
-	return &MCPAdapter{
-		client: client,
-	}, nil
+	adapter := &MCPAdapter{
+		client:  client,
+		timeout: 30 * time.Second,
+	}
+
+	for _, opt := range opts {
+		opt(adapter)
+	}
+
+	return adapter, nil
 }
 
 // Tools returns a list of all available tools from the MCP server.
 // Each tool is wrapped as a langchaingoTools.Tool.
 func (a *MCPAdapter) Tools() ([]langchaingoTools.Tool, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), a.timeout)
 	defer cancel()
 
 	toolsRequest := mcp.ListToolsRequest{}
@@ -108,7 +128,7 @@ func (a *MCPAdapter) Tools() ([]langchaingoTools.Tool, error) {
 	for _, tool := range tools.Tools {
 		slog.Debug("tool", "name", tool.Name, "description", tool.Description)
 
-		mcpTool, err := newLangchaingoTool(tool.Name, tool.Description, tool.InputSchema.Properties, a.client)
+		mcpTool, err := newLangchaingoTool(tool.Name, tool.Description, tool.InputSchema.Properties, a.client, a.timeout)
 		if err != nil {
 			return nil, fmt.Errorf("new langchaingo tool: %w", err)
 		}
@@ -119,7 +139,7 @@ func (a *MCPAdapter) Tools() ([]langchaingoTools.Tool, error) {
 }
 
 // newLangchaingoTool creates a new langchaingo tool from MCP tool information.
-func newLangchaingoTool(name, description string, inputSchema map[string]any, client client.MCPClient) (langchaingoTools.Tool, error) {
+func newLangchaingoTool(name, description string, inputSchema map[string]any, client client.MCPClient, timeout time.Duration) (langchaingoTools.Tool, error) {
 	jsonSchema, err := json.Marshal(inputSchema)
 	if err != nil {
 		return nil, fmt.Errorf("marshal input schema: %w", err)
@@ -130,11 +150,12 @@ func newLangchaingoTool(name, description string, inputSchema map[string]any, cl
 		description: description,
 		inputSchema: jsonSchema,
 		client:      client,
+		timeout:     timeout,
 	}, nil
 }
 
 // NewToolForTesting creates an mcpTool instance for testing purposes.
 // This function is for testing only and should not be used in production applications.
 func NewToolForTesting(name, description string, inputSchema map[string]any, client client.MCPClient) (langchaingoTools.Tool, error) {
-	return newLangchaingoTool(name, description, inputSchema, client)
+	return newLangchaingoTool(name, description, inputSchema, client, 30*time.Second)
 }
