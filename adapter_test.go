@@ -296,8 +296,8 @@ func TestToolCall(t *testing.T) {
 			toolDesc:       "A test tool",
 			inputSchema:    map[string]any{"param1": map[string]any{"type": "string"}},
 			input:          `invalid json`,
-			expectError:    true,
-			expectedErrMsg: "unmarshal input",
+			expectError:    false,
+			expectedOutput: "call the tool error: input must be valid json, retry tool calling with correct json",
 		},
 		{
 			name:        "tool call error",
@@ -309,8 +309,8 @@ func TestToolCall(t *testing.T) {
 					&mcp.CallToolResult{}, assert.AnError)
 			},
 			input:          `{"param1": "test value"}`,
-			expectError:    true,
-			expectedErrMsg: "call the tool: assert.AnError general error for testing",
+			expectError:    false,
+			expectedOutput: "call the tool error: assert.AnError general error for testing",
 		},
 	}
 
