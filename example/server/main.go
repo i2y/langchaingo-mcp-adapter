@@ -2,14 +2,20 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"os/exec"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 
 func main() {
+	// Log to stderr to avoid interfering with stdio protocol
+	log.SetOutput(os.Stderr)
+	
 	// Create MCP server
 	s := server.NewMCPServer(
 		"mcp-curl",
@@ -17,37 +23,48 @@ func main() {
 	)
 
 	// Add a tool
-	tool := mcp.NewTool("use_curl",
-		mcp.WithDescription("fetch this webpage"),
+	tool := mcp.NewTool("fetch_url",
+		mcp.WithDescription("fetch content from a URL"),
 		mcp.WithString("url",
 			mcp.Required(),
-			mcp.Description("url of the webpage to fetch"),
+			mcp.Description("URL of the webpage to fetch"),
 		),
 	)
 
 	// Add a tool handler
-	s.AddTool(tool, curlHandler)
+	s.AddTool(tool, fetchURLHandler)
 
-	fmt.Println("🚀 Server started")
+	log.Println("🚀 Server starting...")
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
-		fmt.Printf("😡 Server error: %v\n", err)
+		log.Printf("😡 Server error: %v\n", err)
+		os.Exit(1)
 	}
-	fmt.Println("👋 Server stopped")
+	log.Println("👋 Server stopped")
 }
 
-func curlHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-
+func fetchURLHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	url, ok := request.Params.Arguments["url"].(string)
 	if !ok {
 		return mcp.NewToolResultError("url must be a string"), nil
 	}
-	cmd := exec.Command("curl", "-s", url)
-	output, err := cmd.Output()
+
+	// Use Go's HTTP client instead of curl for cross-platform compatibility
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := client.Get(url)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	content := string(output)
+	defer resp.Body.Close()
 
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	content := string(body)
 	return mcp.NewToolResultText(content), nil
 }
