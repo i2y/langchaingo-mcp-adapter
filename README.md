@@ -39,7 +39,7 @@ import (
 func main() {
     // Create an MCP client using stdio
     mcpClient, err := client.NewStdioMCPClient(
-        "./an-mcp-server",  // Path to an MCP server
+        "./an-mcp-server",  // Path to an MCP server executable
         nil,                // Additional environment variables if needed
     )
     if err != nil {
@@ -59,7 +59,7 @@ func main() {
         log.Fatalf("Failed to get tools: %v", err)
     }
 
-    ctx := context.Backgorund()
+    ctx := context.Background()
 
     // Create a Google AI LLM client
     llm, err := googleai.New(
@@ -96,10 +96,17 @@ func main() {
 
 ## Example Applications
 
-See the `example` directory for a complete example:
+See the `example` directory for complete examples:
 
-- `example/agent`: Demonstrates how to use the adapter with an LLM agent
-- `example/server`: A minimal MCP server example
+- `example/agent`: Demonstrates how to use the adapter with various LLM providers (Google AI, OpenAI, Anthropic)
+- `example/server`: A minimal MCP server example that provides a URL fetching tool
+
+The example agent supports multiple LLM providers:
+- **Google AI (Gemini)**: Set `GOOGLE_API_KEY`
+- **OpenAI**: Set `OPENAI_API_KEY`
+- **Anthropic (Claude)**: Set `ANTHROPIC_API_KEY`
+
+The example is cross-platform and works on Windows, macOS, and Linux. The example automatically builds and runs the MCP server from source. See the [example README](./example/agent/README.md) for detailed setup instructions.
 
 The mcp-curl server in this sample is based on the code from [this blog](https://k33g.hashnode.dev/creating-an-mcp-server-in-go-and-serving-it-with-docker).
 
