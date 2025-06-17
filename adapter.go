@@ -8,17 +8,25 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/mark3labs/mcp-go/client"
 	"github.com/mark3labs/mcp-go/mcp"
 	langchaingoTools "github.com/tmc/langchaingo/tools"
 )
+
+// MCPClientInterface defines the interface for MCP client operations used by this adapter.
+// This interface is a subset of client.MCPClient that includes only the exported methods we need.
+// The client.MCPClient from github.com/mark3labs/mcp-go/client package implements this interface.
+type MCPClientInterface interface {
+	Initialize(ctx context.Context, request mcp.InitializeRequest) (*mcp.InitializeResult, error)
+	ListTools(ctx context.Context, request mcp.ListToolsRequest) (*mcp.ListToolsResult, error)
+	CallTool(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error)
+}
 
 // mcpTool implements the langchaingoTools.Tool interface for MCP tools.
 type mcpTool struct {
 	name        string
 	description string
 	inputSchema []byte
-	client      client.MCPClient
+	client      MCPClientInterface
 	timeout     time.Duration
 }
 
@@ -61,7 +69,7 @@ func (t *mcpTool) Call(ctx context.Context, input string) (string, error) {
 
 // MCPAdapter adapts an MCP client to the LangChain Go tools interface.
 type MCPAdapter struct {
-	client  client.MCPClient
+	client  MCPClientInterface
 	timeout time.Duration
 }
 
@@ -78,7 +86,7 @@ func WithToolTimeout(timeout time.Duration) Option {
 // New creates a new MCPAdapter instance with the given MCP client.
 // It initializes the connection with the MCP server.
 // Optional parameters can be passed using functional options.
-func New(client client.MCPClient, opts ...Option) (*MCPAdapter, error) {
+func New(client MCPClientInterface, opts ...Option) (*MCPAdapter, error) {
 	initRequest := mcp.InitializeRequest{}
 	initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
 	initRequest.Params.ClientInfo = mcp.Implementation{
@@ -139,7 +147,7 @@ func (a *MCPAdapter) Tools() ([]langchaingoTools.Tool, error) {
 }
 
 // newLangchaingoTool creates a new langchaingo tool from MCP tool information.
-func newLangchaingoTool(name, description string, inputSchema map[string]any, client client.MCPClient, timeout time.Duration) (langchaingoTools.Tool, error) {
+func newLangchaingoTool(name, description string, inputSchema map[string]any, client MCPClientInterface, timeout time.Duration) (langchaingoTools.Tool, error) {
 	jsonSchema, err := json.Marshal(inputSchema)
 	if err != nil {
 		return nil, fmt.Errorf("marshal input schema: %w", err)
@@ -156,6 +164,6 @@ func newLangchaingoTool(name, description string, inputSchema map[string]any, cl
 
 // NewToolForTesting creates an mcpTool instance for testing purposes.
 // This function is for testing only and should not be used in production applications.
-func NewToolForTesting(name, description string, inputSchema map[string]any, client client.MCPClient) (langchaingoTools.Tool, error) {
+func NewToolForTesting(name, description string, inputSchema map[string]any, client MCPClientInterface) (langchaingoTools.Tool, error) {
 	return newLangchaingoTool(name, description, inputSchema, client, 30*time.Second)
 }

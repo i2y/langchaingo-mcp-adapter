@@ -13,98 +13,116 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// MockMCPClient is a mock implementation of the MCPClient.
+// MockMCPClient is a mock implementation of the MCPClientInterface.
 type MockMCPClient struct {
 	mock.Mock
 }
 
-// Initialize mocks the Initialize method of the MCPClient.
+// Initialize mocks the Initialize method of the MCPClientInterface.
 func (m *MockMCPClient) Initialize(ctx context.Context, request mcp.InitializeRequest) (*mcp.InitializeResult, error) {
 	args := m.Called(ctx, request)
 	return args.Get(0).(*mcp.InitializeResult), args.Error(1)
 }
 
-// Ping mocks the Ping method of the MCPClient.
-func (m *MockMCPClient) Ping(ctx context.Context) error {
-	args := m.Called(ctx)
-	return args.Error(0)
-}
-
-// ListResources mocks the ListResources method of the MCPClient.
-func (m *MockMCPClient) ListResources(ctx context.Context, request mcp.ListResourcesRequest) (*mcp.ListResourcesResult, error) {
-	args := m.Called(ctx, request)
-	return args.Get(0).(*mcp.ListResourcesResult), args.Error(1)
-}
-
-// ListResourceTemplates mocks the ListResourceTemplates method of the MCPClient.
-func (m *MockMCPClient) ListResourceTemplates(ctx context.Context, request mcp.ListResourceTemplatesRequest) (*mcp.ListResourceTemplatesResult, error) {
-	args := m.Called(ctx, request)
-	return args.Get(0).(*mcp.ListResourceTemplatesResult), args.Error(1)
-}
-
-// ReadResource mocks the ReadResource method of the MCPClient.
-func (m *MockMCPClient) ReadResource(ctx context.Context, request mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
-	args := m.Called(ctx, request)
-	return args.Get(0).(*mcp.ReadResourceResult), args.Error(1)
-}
-
-// Subscribe mocks the Subscribe method of the MCPClient.
-func (m *MockMCPClient) Subscribe(ctx context.Context, request mcp.SubscribeRequest) error {
-	args := m.Called(ctx, request)
-	return args.Error(0)
-}
-
-// Unsubscribe mocks the Unsubscribe method of the MCPClient.
-func (m *MockMCPClient) Unsubscribe(ctx context.Context, request mcp.UnsubscribeRequest) error {
-	args := m.Called(ctx, request)
-	return args.Error(0)
-}
-
-// ListPrompts mocks the ListPrompts method of the MCPClient.
-func (m *MockMCPClient) ListPrompts(ctx context.Context, request mcp.ListPromptsRequest) (*mcp.ListPromptsResult, error) {
-	args := m.Called(ctx, request)
-	return args.Get(0).(*mcp.ListPromptsResult), args.Error(1)
-}
-
-// GetPrompt mocks the GetPrompt method of the MCPClient.
-func (m *MockMCPClient) GetPrompt(ctx context.Context, request mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
-	args := m.Called(ctx, request)
-	return args.Get(0).(*mcp.GetPromptResult), args.Error(1)
-}
-
-// ListTools mocks the ListTools method of the MCPClient.
+// ListTools mocks the ListTools method of the MCPClientInterface.
 func (m *MockMCPClient) ListTools(ctx context.Context, request mcp.ListToolsRequest) (*mcp.ListToolsResult, error) {
 	args := m.Called(ctx, request)
 	return args.Get(0).(*mcp.ListToolsResult), args.Error(1)
 }
 
-// CallTool mocks the CallTool method of the MCPClient.
+// CallTool mocks the CallTool method of the MCPClientInterface.
 func (m *MockMCPClient) CallTool(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	args := m.Called(ctx, request)
 	return args.Get(0).(*mcp.CallToolResult), args.Error(1)
 }
 
-// SetLevel mocks the SetLevel method of the MCPClient.
+// Ping mocks the Ping method of the MCPClientInterface.
+func (m *MockMCPClient) Ping(ctx context.Context) error {
+	args := m.Called(ctx)
+	return args.Error(0)
+}
+
+// ListResourcesByPage mocks the ListResourcesByPage method of the MCPClientInterface.
+func (m *MockMCPClient) ListResourcesByPage(ctx context.Context, request mcp.ListResourcesRequest) (*mcp.ListResourcesResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ListResourcesResult), args.Error(1)
+}
+
+// ListResources mocks the ListResources method of the MCPClientInterface.
+func (m *MockMCPClient) ListResources(ctx context.Context, request mcp.ListResourcesRequest) (*mcp.ListResourcesResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ListResourcesResult), args.Error(1)
+}
+
+// ListResourceTemplatesByPage mocks the ListResourceTemplatesByPage method of the MCPClientInterface.
+func (m *MockMCPClient) ListResourceTemplatesByPage(ctx context.Context, request mcp.ListResourceTemplatesRequest) (*mcp.ListResourceTemplatesResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ListResourceTemplatesResult), args.Error(1)
+}
+
+// ListResourceTemplates mocks the ListResourceTemplates method of the MCPClientInterface.
+func (m *MockMCPClient) ListResourceTemplates(ctx context.Context, request mcp.ListResourceTemplatesRequest) (*mcp.ListResourceTemplatesResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ListResourceTemplatesResult), args.Error(1)
+}
+
+// ReadResource mocks the ReadResource method of the MCPClientInterface.
+func (m *MockMCPClient) ReadResource(ctx context.Context, request mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ReadResourceResult), args.Error(1)
+}
+
+// Subscribe mocks the Subscribe method of the MCPClientInterface.
+func (m *MockMCPClient) Subscribe(ctx context.Context, request mcp.SubscribeRequest) error {
+	args := m.Called(ctx, request)
+	return args.Error(0)
+}
+
+// Unsubscribe mocks the Unsubscribe method of the MCPClientInterface.
+func (m *MockMCPClient) Unsubscribe(ctx context.Context, request mcp.UnsubscribeRequest) error {
+	args := m.Called(ctx, request)
+	return args.Error(0)
+}
+
+// ListPromptsByPage mocks the ListPromptsByPage method of the MCPClientInterface.
+func (m *MockMCPClient) ListPromptsByPage(ctx context.Context, request mcp.ListPromptsRequest) (*mcp.ListPromptsResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ListPromptsResult), args.Error(1)
+}
+
+// ListPrompts mocks the ListPrompts method of the MCPClientInterface.
+func (m *MockMCPClient) ListPrompts(ctx context.Context, request mcp.ListPromptsRequest) (*mcp.ListPromptsResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ListPromptsResult), args.Error(1)
+}
+
+// GetPrompt mocks the GetPrompt method of the MCPClientInterface.
+func (m *MockMCPClient) GetPrompt(ctx context.Context, request mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.GetPromptResult), args.Error(1)
+}
+
+// ListToolsByPage mocks the ListToolsByPage method of the MCPClientInterface.
+func (m *MockMCPClient) ListToolsByPage(ctx context.Context, request mcp.ListToolsRequest) (*mcp.ListToolsResult, error) {
+	args := m.Called(ctx, request)
+	return args.Get(0).(*mcp.ListToolsResult), args.Error(1)
+}
+
+// SetLevel mocks the SetLevel method of the MCPClientInterface.
 func (m *MockMCPClient) SetLevel(ctx context.Context, request mcp.SetLevelRequest) error {
 	args := m.Called(ctx, request)
 	return args.Error(0)
 }
 
-// Complete mocks the Complete method of the MCPClient.
+// Complete mocks the Complete method of the MCPClientInterface.
 func (m *MockMCPClient) Complete(ctx context.Context, request mcp.CompleteRequest) (*mcp.CompleteResult, error) {
 	args := m.Called(ctx, request)
 	return args.Get(0).(*mcp.CompleteResult), args.Error(1)
 }
 
-// Close mocks the Close method of the MCPClient.
-func (m *MockMCPClient) Close() error {
-	args := m.Called()
-	return args.Error(0)
-}
-
-// OnNotification mocks the OnNotification method of the MCPClient.
-func (m *MockMCPClient) OnNotification(handler func(notification mcp.JSONRPCNotification)) {
-	m.Called(handler)
+// Close mocks the Close method of the MCPClientInterface.
+func (m *MockMCPClient) Close() {
+	m.Called()
 }
 
 // TestNew tests the New function of the adapter.
