@@ -44,7 +44,12 @@ func main() {
 }
 
 func fetchURLHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	url, ok := request.Params.Arguments["url"].(string)
+	args, ok := request.Params.Arguments.(map[string]interface{})
+	if !ok {
+		return mcp.NewToolResultError("arguments must be an object"), nil
+	}
+	
+	url, ok := args["url"].(string)
 	if !ok {
 		return mcp.NewToolResultError("url must be a string"), nil
 	}
