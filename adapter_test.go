@@ -152,7 +152,7 @@ func TestNew(t *testing.T) {
 					&mcp.InitializeResult{}, assert.AnError)
 			},
 			expectError:    true,
-			expectedErrMsg: "initialize: assert.AnError general error for testing",
+			expectedErrMsg: "failed to initialize MCP client",
 		},
 	}
 
@@ -315,7 +315,7 @@ func TestToolCall(t *testing.T) {
 			inputSchema:    map[string]any{"param1": map[string]any{"type": "string"}},
 			input:          `invalid json`,
 			expectError:    false,
-			expectedOutput: "call the tool error: input must be valid json, retry tool calling with correct json",
+			expectedOutput: "call the tool error: input must be valid json (error: invalid character 'i' looking for beginning of value), retry tool calling with correct json",
 		},
 		{
 			name:        "tool call error",

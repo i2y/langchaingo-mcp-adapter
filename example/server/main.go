@@ -15,7 +15,7 @@ import (
 func main() {
 	// Log to stderr to avoid interfering with stdio protocol
 	log.SetOutput(os.Stderr)
-	
+
 	// Create MCP server
 	s := server.NewMCPServer(
 		"mcp-curl",
@@ -48,7 +48,7 @@ func fetchURLHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	if !ok {
 		return mcp.NewToolResultError("arguments must be an object"), nil
 	}
-	
+
 	url, ok := args["url"].(string)
 	if !ok {
 		return mcp.NewToolResultError("url must be a string"), nil
